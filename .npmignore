@@ -1,0 +1,6 @@
+src/
+test/
+.vscode/
+*.log
+tsconfig.json
+vite.config.ts

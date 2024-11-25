@@ -1,0 +1,62 @@
+{
+  "name": "f-box-react",
+  "version": "0.1.0",
+  "description": "React hooks and utilities for working with f-box-core.",
+  "type": "module",
+  "files": [
+    "dist/types",
+    "dist/index.*"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/types/main.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/main.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "tsc --noEmit",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major",
+    "publish:public": "npm publish --access public",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "typescript",
+    "react",
+    "hooks",
+    "f-box",
+    "f-box-core"
+  ],
+  "author": "Kentaro Morishita",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KentaroMorishita/f-box-react"
+  },
+  "peerDependencies": {
+    "f-box-core": ">=0.1.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.1",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.7",
+    "@vitest/coverage-v8": "^2.1.5",
+    "f-box-core": "^0.1.6",
+    "react": "^18.3.1",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.9",
+    "vite-plugin-dts": "^4.3.0",
+    "vitest": "^2.1.5"
+  }
+}
