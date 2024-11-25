@@ -14,6 +14,9 @@ export default defineConfig({
         return `index.${format}.js`;
       },
     },
+    rollupOptions: {
+      external: ["f-box-core", "react", "react-dom"],
+    },
   },
   plugins: [
     dts({
