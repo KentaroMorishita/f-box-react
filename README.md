@@ -1,14 +1,14 @@
 # F-Box React
 
-**F-Box React** provides React hooks and utilities to seamlessly integrate [F-Box Core](https://github.com/KentaroMorishita/f-box-core) into your React applications. With `useBox`, `useRBox`, and `useRBoxForm`, you can manage state reactively and functionally, leveraging the abstractions provided by F-Box Core.
+**F-Box React** provides React hooks and utilities to seamlessly integrate [F-Box](https://github.com/KentaroMorishita/f-box-core) into your React applications. With `useBox`, `useRBox`, and `useRBoxForm`, you can manage state reactively and functionally, leveraging the abstractions provided by F-Box.
 
-**F-Box React** は、[F-Box Core](https://github.com/KentaroMorishita/f-box-core) を React アプリケーションにシームレスに統合するためのフックとユーティリティを提供します。`useBox`、`useRBox`、`useRBoxForm` を活用して、F-Box Core が提供する抽象化を利用したリアクティブで関数型の状態管理を実現できます。
+**F-Box React** は、[F-Box](https://github.com/KentaroMorishita/f-box-core) を React アプリケーションにシームレスに統合するためのフックとユーティリティを提供します。`useBox`、`useRBox`、`useRBoxForm` を活用して、F-Box が提供する抽象化を利用したリアクティブで関数型の状態管理を実現できます。
 
-| Hook          | Description                                                                                                                                                                    |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `useBox`      | A hook for managing static values with the `Box` abstraction. / 静的な値を`Box`抽象で管理するフック。                                                                           |
-| `useRBox`     | A hook for managing reactive state with `RBox`. / `RBox` を使用してリアクティブな状態を管理するフック。                                                                         |
-| `useRBoxForm` | A utility hook for form state management with validation. / バリデーション付きのフォーム状態管理を実現するユーティリティフック。                                                 |
+| Hook          | Description                                                                                                                      |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `useBox`      | A hook for managing static values with the `Box` abstraction. / 静的な値を`Box`抽象で管理するフック。                            |
+| `useRBox`     | A hook for managing reactive state with `RBox`. / `RBox` を使用してリアクティブな状態を管理するフック。                          |
+| `useRBoxForm` | A utility hook for form state management with validation. / バリデーション付きのフォーム状態管理を実現するユーティリティフック。 |
 
 ---
 
@@ -34,9 +34,9 @@ npm install f-box-core react react-dom
 
 ### `useBox`
 
-`useBox` allows you to work with static values encapsulated in a `Box`, using F-Box Core's operators like `["<$>"]`, `["<*>"]`, and `[">>="]`.
+`useBox` allows you to work with static values encapsulated in a `Box`, using F-Box's operators like `["<$>"]`, `["<*>"]`, and `[">>="]`.
 
-`useBox` を使用すると、F-Box Core の `Box` 抽象にカプセル化された静的な値を操作できます。`["<$>"]`、`["<*>"]`、`[">>="]` といった演算子を使用します。
+`useBox` を使用すると、F-Box の `Box` 抽象にカプセル化された静的な値を操作できます。`["<$>"]`、`["<*>"]`、`[">>="]` といった演算子を使用します。
 
 #### Example
 
@@ -44,10 +44,10 @@ npm install f-box-core react react-dom
 import { useBox } from "f-box-react";
 
 function App() {
-  const [value, box] = useBox(10); // Initial value is 10 / 初期値は10
+  const [value, valueBox] = useBox(10); // Initial value is 10.
 
   // Derive new values using ["<$>"] / ["<$>"] を使って値を派生
-  const [squared] = useBox(() => box["<$>"]((x) => x * x));
+  const [squared] = useBox(() => valueBox["<$>"]((x) => x * x));
 
   return (
     <div>
@@ -68,7 +68,7 @@ function App() {
 
 `useRBox` is the core hook for integrating F-Box's reactive state management (`RBox`) into React components. It allows seamless connection between reactive state and React's rendering lifecycle.
 
-`useRBox`は、F-Boxのリアクティブな状態管理（`RBox`）をReactコンポーネントに統合するための主要なフックです。リアクティブな状態とReactのレンダリングライフサイクルをシームレスに結びつけます。
+`useRBox`は、F-Box のリアクティブな状態管理（`RBox`）を React コンポーネントに統合するための主要なフックです。リアクティブな状態と React のレンダリングライフサイクルをシームレスに結びつけます。
 
 ---
 
@@ -76,13 +76,13 @@ function App() {
 
 Use `useRBox` to create and manage a local reactive state within a single component.
 
-`useRBox`を使用して、1つのコンポーネント内でローカルなリアクティブ状態を作成・管理します。
+`useRBox`を使用して、1 つのコンポーネント内でローカルなリアクティブ状態を作成・管理します。
 
 ```tsx
 import { useRBox, set } from "f-box-react";
 
 function Counter() {
-  const [count, countBox] = useRBox(0); // Initialize with 0
+  const [count, countBox] = useRBox(0); // Initialize with 0.
   const setCount = set(countBox);
 
   const increment = () => setCount(count + 1);
@@ -111,7 +111,7 @@ import { useRBox, set } from "f-box-react";
 const countBox = RBox.pack(0); // Create a global reactive state.
 
 function Counter() {
-  const [count] = useRBox(countBox);
+  const [count] = useRBox(countBox); // Bind global state to local variable.
   const setCount = set(countBox);
 
   const increment = () => setCount(count + 1);
@@ -127,7 +127,7 @@ function Counter() {
 function ResetButton() {
   const setCount = set(countBox);
 
-  const reset = () => setCount(0);
+  const reset = () => setCount(0); // Reset state to 0.
 
   return <button onClick={reset}>Reset</button>;
 }
@@ -139,6 +139,52 @@ In this example, `Counter` and `ResetButton` share the same `countBox`. Updating
 
 ---
 
+### **`set` Helper / `set` ヘルパー**
+
+The `set` helper simplifies updating `RBox` values while keeping their current state accessible. Normally, you would write:
+
+`set` ヘルパーは、現在の値を引数として受け取りつつ、`RBox` の値を更新するコードを簡潔にします。通常は次のように書きます：
+
+```tsx
+baseBox.setValue((base) => base + 1);
+// Note: `base` here is the current state (currentValue).
+// 注: ここでの `base` は現在の状態 (currentValue) を指します。
+```
+
+However, when working with `useRBox`, you typically use destructuring like:
+
+ただし、`useRBox` を使用している場合、以下のように分割代入を使うのが一般的です：
+
+```tsx
+const [base, baseBox] = useRBox(1);
+```
+
+In this case, the `set` helper allows you to simplify updates:
+
+この場合、`set` ヘルパーを使うと更新処理を簡潔に記述できます：
+
+```tsx
+const setBase = set(baseBox);
+
+setBase(base + 1); // Cleaner and reusable / より簡潔で再利用可能
+```
+
+Essentially, `set(baseBox)` is syntactic sugar for:
+
+本質的に、`set(baseBox)` は以下のシンタックスシュガーです：
+
+```tsx
+baseBox.setValue(() => newValue);
+```
+
+### Why Use `set`? / なぜ `set` を使うのか？
+
+By using `set`, you avoid repetitive arrow functions like `(base) => base + 1`. It improves code clarity, especially when destructuring state from `useRBox`.
+
+`set` を使うことで、`(base) => base + 1` のような繰り返しのアロー関数を避けられます。特に、`useRBox` で状態を分割代入している場合、コードの可読性が向上します。
+
+---
+
 ### Reactive Operators with `useRBox`
 
 The power of `useRBox` lies in its ability to maintain reactivity while composing, transforming, and chaining values. Using operators like `<$>`, `<*>`, and `>>=`, you can build highly dynamic and interconnected state systems.
@@ -147,110 +193,140 @@ The power of `useRBox` lies in its ability to maintain reactivity while composin
 
 ---
 
-#### `<$>` in `useRBox` / `useRBox`での`<$>`の使用例
+### `<$>` in `useRBox` / `useRBox`での`<$>`の使用例
 
 ```tsx
-import { useRBox } from "f-box-react";
+import { useRBox, set } from "f-box-react";
 
 function ReactiveExample() {
-  const [baseValue, baseBox] = useRBox(10);
+  const [base, baseBox] = useRBox(10); // Initialize with 10.
+  const setBase = set(baseBox);
+
+  // Derive squared value from base.
   const [squared] = useRBox(() => baseBox["<$>"]((x) => x * x));
+  // Derive cubed value from base.
   const [cubed] = useRBox(() => baseBox["<$>"]((x) => x * x * x));
 
   return (
     <div>
-      <p>Base Value: {baseValue}</p>
+      <p>Base: {base}</p>
       <p>Squared: {squared}</p>
       <p>Cubed: {cubed}</p>
-      <button onClick={() => baseBox.setValue(baseValue + 1)}>Increment</button>
+      <button onClick={() => setBase(base + 1)}>Increment</button>
     </div>
   );
 }
 ```
 
 **Explanation:**
-- `squared` and `cubed` update automatically whenever `baseValue` changes.
-- This demonstrates the seamless reactivity between `RBox` values.
+
+- `squared` and `cubed` are derived states that automatically update whenever `base` changes.
+- The `set` helper simplifies updating `baseBox` values, ensuring reactive and clean state management.
 
 **説明:**
-- `baseValue`が変更されるたびに`squared`と`cubed`が自動で更新されます。
-- `RBox`値間のスムーズなリアクティビティを示しています。
+
+- `squared` と `cubed` は派生状態で、`base` が変更されるたびに自動的に更新されます。
+- `set` ヘルパーを使用することで、`baseBox` の値をリアクティブかつ簡潔に更新できます。
 
 ---
 
-#### `<*>` in `useRBox` / `useRBox`での`<*>`の使用例
+### `<*>` in `useRBox` / `useRBox`での`<*>`の使用例
 
 ```tsx
-import { useRBox } from "f-box-react";
+import { useRBox, set } from "f-box-react";
 
 function CombineStates() {
-  // multiplierBox contains a function: (x: number) => number
-  const [multiplierFn, multiplierBox] = useRBox(() => (x: number) => x * 2);
-  const [value, valueBox] = useRBox(5);
+  const [, addBox] = useRBox(() => (x: number) => (y: number) => x + y);
+  const [, mulBox] = useRBox(() => (x: number) => (y: number) => x * y);
+  const [v1, v1Box] = useRBox(5);
+  const [v2, v2Box] = useRBox(10);
+  const setV1 = set(v1Box);
+  const setV2 = set(v2Box);
 
-  // Compute the product using <*>
-  const [product] = useRBox(() => multiplierBox["<*>"](valueBox));
-
-  // Update functions
-  const incrementMultiplier = () =>
-    multiplierBox.setValue((fn) => (x: number) => fn(x) + 1);
-
-  const incrementValue = () => valueBox.setValue((current) => current + 1);
+  const [total] = useRBox(() => addBox["<*>"](v1Box)["<*>"](v2Box));
+  const [product] = useRBox(() => mulBox["<*>"](v1Box)["<*>"](v2Box));
 
   return (
     <div>
-      <p>Multiplier Function: (x) => {multiplierFn(1)}</p>
-      <p>Value: {value}</p>
-      <p>Product: {product}</p>
-      <button onClick={incrementMultiplier}>Increment Multiplier</button>
-      <button onClick={incrementValue}>Increment Value</button>
+      <p>Value 1: {v1}</p>
+      <p>Value 2: {v2}</p>
+      <p>Total (v1 + v2): {total}</p>
+      <p>Product (v1 * v2): {product}</p>
+      <button onClick={() => setV1(v1 + 1)}>Increment Value 1</button>
+      <button onClick={() => setV2(v2 + 1)}>Increment Value 2</button>
     </div>
   );
 }
 ```
 
 **Explanation:**
-- `multiplierBox` initially holds a function `(x) => x * 2`.
-- The `<*>` operator applies the function inside `multiplierBox` to the value inside `valueBox`, producing the `product`.
-- Changes to either the function in `multiplierBox` or the value in `valueBox` trigger an update to `product`.
+
+- `addBox` and `mulBox` initially hold curried functions:
+  - `addBox` for addition `(x) => (y) => x + y`.
+  - `mulBox` for multiplication `(x) => (y) => x * y`.
+- `<*>` is used to apply these functions to `v1Box` and `v2Box`:
+  - `addBox` computes `total` (sum).
+  - `mulBox` computes `product` (multiplication).
+- Changing `v1` or `v2` automatically updates both `total` and `product`, demonstrating seamless reactivity.
+- The `set` helper simplifies updates to `v1Box` and `v2Box`.
 
 **説明:**
-- `multiplierBox` は初期値として `(x) => x * 2` という関数を持ちます。
-- `<*>` 演算子は、`multiplierBox` 内の関数を `valueBox` 内の値に適用し、`product` を生成します。
-- `multiplierBox` 内の関数または `valueBox` 内の値が変更されると、`product` が更新されます。
 
+- `addBox` と `mulBox` は初期値としてカリー化された関数を保持します：
+  - `addBox` は加算 `(x) => (y) => x + y`。
+  - `mulBox` は乗算 `(x) => (y) => x * y`。
+- `<*>` を使って、これらの関数を `v1Box` と `v2Box` に適用します：
+  - `addBox` は `total`（合計）を計算。
+  - `mulBox` は `product`（積）を計算。
+- `v1` または `v2` の変更に応じて、`total` と `product` が自動的に更新されます。
+- `set` ヘルパーで `v1Box` と `v2Box` の更新が簡潔になります。
 
 ---
 
-#### `>>=` in `useRBox` / `useRBox`での`>>=`の使用例
+### `>>=` in `useRBox` / `useRBox`での`>>=`の使用例
 
 ```tsx
-import { useRBox } from "f-box-react";
+import { RBox } from "f-box-core";
+import { useRBox, set } from "f-box-react";
 
 function DependentStates() {
-  const [baseValue, baseBox] = useRBox(10);
+  const [base, baseBox] = useRBox(10); // Initialize with 10.
+  const setBase = set(baseBox);
 
-  const [step1] = useRBox(() => baseBox[">>="]((x) => RBox.pack(x * 2)));
-  const [step2] = useRBox(() => step1[">>="]((x) => RBox.pack(x + 5)));
+  // Step 1: Multiply base by 2.
+  const [step1, step1Box] = useRBox(() =>
+    baseBox[">>="]((x) => RBox.pack(x * 2))
+  );
+
+  // Step 2: Add 5 to step 1 result.
+  const [step2] = useRBox(() =>
+    step1Box[">>="]((x) => RBox.pack(x + 5))
+  );
 
   return (
     <div>
-      <p>Base Value: {baseValue}</p>
-      <p>Step 1 (x * 2): {step1}</p>
-      <p>Step 2 (x + 5): {step2}</p>
-      <button onClick={() => baseBox.setValue(baseValue + 1)}>Increment</button>
+      <p>Base: {base}</p>
+      <p>Step 1 (Base * 2): {step1}</p>
+      <p>Step 2 (Step 1 + 5): {step2}</p>
+      <button onClick={() => setBase(base + 1)}>Increment Base</button>
     </div>
   );
 }
 ```
 
 **Explanation:**
-- The state `step2` depends on `step1`, and both update whenever `baseValue` changes.
-- This is useful for scenarios requiring a chain of reactive transformations.
+
+- `step1` is derived from `baseBox` using `>>=`, doubling the base value.
+- `step2` is derived from `step1Box`, adding 5 to the doubled value.
+- Both `step1` and `step2` update automatically whenever `base` changes.
+- The `set` helper ensures that `baseBox` updates are simple and reactive.
 
 **説明:**
-- 状態`step2`は`step1`に依存しており、`baseValue`が変更されると両方が更新されます。
-- リアクティブな変換の連鎖が必要なシナリオに役立ちます。
+
+- `step1` は `baseBox` から `>>=` を使って派生し、基底値を 2 倍します。
+- `step2` は `step1Box` から派生し、2 倍した値に 5 を加えます。
+- `base` が変更されると、`step1` と `step2` が自動的に更新されます。
+- `set` ヘルパーにより、`baseBox` の更新がシンプルでリアクティブに行えます。
 
 ---
 
@@ -258,7 +334,7 @@ function DependentStates() {
 
 When using operators like `<$>`, `<*>`, or `>>=` with `useRBox`, it's important to wrap them in a function (`() =>`). React's `useMemo` is used internally to ensure efficient re-computation only when dependencies change.
 
-`<$>`、`<*>`、`>>=`のような演算子を`useRBox`で使用する場合、必ずそれらを`() =>`でラップする必要があります。Reactの`useMemo`が内部的に使用され、依存関係が変化した場合にのみ効率的に再計算を行います。
+`<$>`、`<*>`、`>>=`のような演算子を`useRBox`で使用する場合、必ずそれらを`() =>`でラップする必要があります。React の`useMemo`が内部的に使用され、依存関係が変化した場合にのみ効率的に再計算を行います。
 
 ---
 
@@ -268,7 +344,9 @@ When using operators like `<$>`, `<*>`, or `>>=` with `useRBox`, it's important 
 import { useRBox } from "f-box-react";
 
 function IncorrectExample() {
-  const [valueBox] = useRBox(10);
+  const [, valueBox] = useRBox(10); // Initialize with 10.
+
+  // Directly using valueBox without wrapping.
   const [squared] = useRBox(valueBox["<$>"]((x) => x * x)); // Incorrect!
 
   return <p>Squared: {squared}</p>;
@@ -276,10 +354,12 @@ function IncorrectExample() {
 ```
 
 **What Happens:**
+
 - `valueBox["<$>"]` is executed immediately on every render.
 - Leads to unnecessary computations and potential performance issues.
 
 **動作:**
+
 - `valueBox["<$>"]`がレンダリングごとに即座に実行されます。
 - 不要な計算やパフォーマンス問題を引き起こします。
 
@@ -291,7 +371,9 @@ function IncorrectExample() {
 import { useRBox } from "f-box-react";
 
 function CorrectExample() {
-  const [valueBox] = useRBox(10);
+  const [, valueBox] = useRBox(10); // Initialize with 10.
+
+  // Wrap valueBox usage with () =>.
   const [squared] = useRBox(() => valueBox["<$>"]((x) => x * x)); // Correct!
 
   return <p>Squared: {squared}</p>;
@@ -299,12 +381,14 @@ function CorrectExample() {
 ```
 
 **What Happens:**
+
 - The computation is deferred and memoized.
 - React only re-computes `squared` when `valueBox` changes.
 
 **動作:**
+
 - 計算が遅延実行され、メモ化されます。
-- `valueBox`が変化したときのみReactが`squared`を再計算します。
+- `valueBox`が変化したときのみ React が`squared`を再計算します。
 
 ---
 
@@ -330,9 +414,9 @@ type Form = {
 const initialValues: Form = { name: "", email: "", message: "" };
 
 const validate = (form: Form) => ({
-  name: form.name.trim().length >= 3,
-  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email),
-  message: form.message.trim().length >= 10,
+  name: form.name.trim().length >= 3, // Name must be at least 3 characters.
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email), // Email format check.
+  message: form.message.trim().length >= 10, // Message must be 10+ characters.
 });
 
 function ContactForm() {
@@ -376,15 +460,16 @@ function ContactForm() {
 ```
 
 **Key Features:**
+
 - Validation and error handling using the `validate` function.
 - Simplifies form logic with `handleChange`, `shouldShowError`, and `handleValidatedSubmit`.
 - Fully reactive updates powered by `RBox`.
 
 **主な特徴:**
+
 - `validate`関数を使用したバリデーションとエラーハンドリング。
 - `handleChange`、`shouldShowError`、`handleValidatedSubmit`でフォームロジックを簡略化。
 - `RBox`による完全リアクティブな更新。
-
 
 ---
 
