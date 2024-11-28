@@ -1,49 +1,58 @@
-import { useRBox, set } from "./useRBox";
+import { useRBox } from "./useRBox";
 
-type Validation<T extends object> = {
+type FormValues = Record<string, unknown>;
+
+type ValidationRule = () => boolean;
+
+type Validation<T extends FormValues> = {
+  [K in keyof T]: ValidationRule[];
+};
+
+type Edited<T extends FormValues> = {
   [K in keyof T]: boolean;
 };
 
-type UseRBoxFormResult<T extends object> = {
+type UseRBoxFormResult<T extends FormValues> = {
   form: T;
   handleChange: <K extends keyof T>(field: K, value: T[K]) => void;
   handleValidatedSubmit: (
     onSuccess: (form: T) => void,
     onError?: () => void
   ) => (e: React.FormEvent) => void;
-  shouldShowError: <K extends keyof T>(field: K) => boolean;
+  shouldShowError: <K extends keyof T>(field: K) => (index: number) => boolean;
   validation: Validation<T>;
-  edited: Validation<T>;
+  edited: Edited<T>;
+  formValid: boolean;
   resetForm: () => void;
   markAllEdited: () => void;
 };
 
-export function useRBoxForm<T extends object>(
+export function useRBoxForm<T extends FormValues>(
   initialValues: T,
   validate: (form: T) => Validation<T>
 ): UseRBoxFormResult<T> {
-  const initialEdited = (value: boolean) =>
+  const initialEdited = (value: boolean): Edited<T> =>
     Object.keys(initialValues).reduce(
       (acc, key) => ({ ...acc, [key]: value }),
-      {} as Validation<T>
+      {} as Edited<T>
     );
 
   // RBoxes
   const [form, formBox] = useRBox<T>(initialValues);
   const [validation, validationBox] = useRBox(() => formBox["<$>"](validate));
-  const [edited, editedBox] = useRBox<Validation<T>>(initialEdited(false));
-  const [formValid] = useRBox(() =>
-    validationBox["<$>"]((v) => Object.values(v).every((val) => val === true))
+  const [edited, editedBox] = useRBox<Edited<T>>(initialEdited(false));
+  const [formValid, formValidBox] = useRBox(() =>
+    validationBox["<$>"]((v) =>
+      Object.values(v)
+        .flat()
+        .every((rule) => rule())
+    )
   );
-
-  // setters
-  const setForm = set(formBox);
-  const setEdited = set(editedBox);
 
   // helpers
   const handleChange = <K extends keyof T>(field: K, value: T[K]) => {
-    setForm({ ...form, [field]: value });
-    setEdited({ ...edited, [field]: true });
+    formBox.setValue((prev) => ({ ...prev, [field]: value }));
+    editedBox.setValue((prev) => ({ ...prev, [field]: true }));
   };
 
   const handleValidatedSubmit =
@@ -52,23 +61,30 @@ export function useRBoxForm<T extends object>(
       e.preventDefault();
       markAllEdited();
 
-      if (!formValid) {
+      if (!formValidBox.getValue()) {
         if (onError) onError();
         return;
       }
-      onSuccess(form);
+      onSuccess(formBox.getValue());
     };
 
-  const shouldShowError = <K extends keyof T>(field: K) =>
-    edited[field] && !validation[field];
+  const shouldShowError =
+    <K extends keyof T>(field: K) =>
+    (index: number): boolean =>
+      edited[field] && !validation[field][index]();
 
   const resetForm = () => {
-    setForm(initialValues);
-    setEdited(initialEdited(false));
+    formBox.setValue(() => initialValues);
+    editedBox.setValue(() => initialEdited(false));
   };
 
   const markAllEdited = () => {
-    setEdited(initialEdited(true));
+    editedBox.setValue((prev) =>
+      Object.keys(prev).reduce(
+        (acc, key) => ({ ...acc, [key]: true }),
+        {} as Edited<T>
+      )
+    );
   };
 
   return {
@@ -78,6 +94,7 @@ export function useRBoxForm<T extends object>(
     shouldShowError,
     validation,
     edited,
+    formValid,
     resetForm,
     markAllEdited,
   };
