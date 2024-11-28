@@ -400,7 +400,13 @@ function CorrectExample() {
 
 ---
 
-#### Full Example: Contact Form
+#### **Full Example: Contact Form**
+
+This example demonstrates how to manage a form using `useRBoxForm`.
+It simplifies validation, error message rendering, and form submission logic.
+
+以下の例は、`useRBoxForm`を使った基本的なフォーム管理の使用方法を示します。
+バリデーション、エラーメッセージの表示、フォーム送信のロジックを簡潔に実現します。
 
 ```tsx
 import { useRBoxForm } from "f-box-react";
@@ -414,14 +420,25 @@ type Form = {
 const initialValues: Form = { name: "", email: "", message: "" };
 
 const validate = (form: Form) => ({
-  name: form.name.trim().length >= 3, // Name must be at least 3 characters.
-  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email), // Email format check.
-  message: form.message.trim().length >= 10, // Message must be 10+ characters.
+  name: [
+    () => form.name.trim().length >= 3, // Name must be at least 3 characters.
+    () => /^[a-zA-Z]+$/.test(form.name), // Name must only contain letters.
+  ],
+  email: [
+    () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email), // Email format check.
+  ],
+  message: [
+    () => form.message.trim().length >= 10, // Message must be 10+ characters.
+  ],
 });
 
 function ContactForm() {
-  const { form, handleChange, handleValidatedSubmit, shouldShowError } =
-    useRBoxForm<Form>(initialValues, validate);
+  const {
+    form,
+    handleChange,
+    handleValidatedSubmit,
+    renderErrorMessages,
+  } = useRBoxForm<Form>(initialValues, validate);
 
   const handleSubmit = handleValidatedSubmit((form) => {
     alert(`Submitted successfully:\n${JSON.stringify(form, null, 2)}`);
@@ -435,7 +452,10 @@ function ContactForm() {
           value={form.name}
           onChange={(e) => handleChange("name", e.target.value)}
         />
-        {shouldShowError("name") && <span>Name is invalid.</span>}
+        {renderErrorMessages("name", [
+          "Name must be at least 3 characters.",
+          "Name must only contain letters.",
+        ])}
       </label>
       <label>
         Email:
@@ -443,7 +463,7 @@ function ContactForm() {
           value={form.email}
           onChange={(e) => handleChange("email", e.target.value)}
         />
-        {shouldShowError("email") && <span>Email is invalid.</span>}
+        {renderErrorMessages("email", ["Invalid email format."])}
       </label>
       <label>
         Message:
@@ -451,7 +471,9 @@ function ContactForm() {
           value={form.message}
           onChange={(e) => handleChange("message", e.target.value)}
         />
-        {shouldShowError("message") && <span>Message is too short.</span>}
+        {renderErrorMessages("message", [
+          "Message must be at least 10 characters.",
+        ])}
       </label>
       <button type="submit">Submit</button>
     </form>
@@ -459,17 +481,65 @@ function ContactForm() {
 }
 ```
 
-**Key Features:**
+---
 
-- Validation and error handling using the `validate` function.
-- Simplifies form logic with `handleChange`, `shouldShowError`, and `handleValidatedSubmit`.
-- Fully reactive updates powered by `RBox`.
+#### **Key Features**
 
-**主な特徴:**
+1. **Validation and Error Handling:**
+   - Define validation rules as an array of functions per field in the `validate` function.
+   - Display validation errors dynamically using `renderErrorMessages`.
 
-- `validate`関数を使用したバリデーションとエラーハンドリング。
-- `handleChange`、`shouldShowError`、`handleValidatedSubmit`でフォームロジックを簡略化。
-- `RBox`による完全リアクティブな更新。
+2. **Simplified Form Logic:**
+   - `handleChange` to update field values and mark them as edited.
+   - `handleValidatedSubmit` to handle form submission based on validation results.
+
+3. **Reactive State Updates:**
+   - Powered by `RBox`, the form and validation states remain synchronized reactively.
+
+---
+
+#### **主な特徴**
+
+1. **バリデーションとエラーハンドリング:**
+   - 各フィールドごとに複数のバリデーションルールを`validate`関数で定義。
+   - `renderErrorMessages`を使用して、動的にエラーメッセージを表示。
+
+2. **フォームロジックの簡略化:**
+   - `handleChange`でフィールド値を更新し、編集済みとしてマーク。
+   - `handleValidatedSubmit`で、バリデーション結果に基づいたフォーム送信を実現。
+
+3. **リアクティブな状態管理:**
+   - `RBox`を活用して、フォームとバリデーション状態をリアクティブに同期。
+
+---
+
+### **Advanced Customization**
+
+`renderErrorMessages` supports custom components for rendering error messages. By default, it uses a `<span>` tag, but you can specify a custom component:
+
+`renderErrorMessages`は、エラーメッセージのレンダリングにカスタムコンポーネントをサポートします。デフォルトでは`<span>`タグを使用しますが、カスタムコンポーネントを指定することも可能です。
+
+```tsx
+{renderErrorMessages(
+  "name",
+  ["Name must be at least 3 characters.", "Name must only contain letters."],
+  CustomErrorComponent
+)}
+```
+
+Example of a custom component:
+
+カスタムコンポーネントの例:
+
+```tsx
+const CustomErrorComponent = ({ children }: { children: React.ReactNode }) => (
+  <div className="error">{children}</div>
+);
+```
+
+This customization allows you to flexibly change the style and structure of error rendering components.
+
+このカスタマイズにより、エラー表示のスタイルやコンポーネント構造を柔軟に変更できます。
 
 ---
 

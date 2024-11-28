@@ -165,4 +165,72 @@ describe("useRBoxForm", () => {
     expect(onSuccess).not.toHaveBeenCalled();
     expect(onError).toHaveBeenCalled();
   });
+  test("should render error messages correctly for invalid fields", () => {
+    const { result } = renderHook(() => useRBoxForm(initialValues, validate));
+
+    act(() => {
+      result.current.handleChange("name", "Jo"); // Invalid: Too short
+      result.current.handleChange("age", 16); // Invalid: Too young
+      result.current.handleChange("isChecked", false); // Invalid: Not checked
+    });
+
+    const nameErrorMessages = result.current.renderErrorMessages("name", [
+      "Name must be at least 3 characters.",
+      "Name must only contain letters.",
+    ]);
+
+    const ageErrorMessages = result.current.renderErrorMessages("age", [
+      "Age must be greater than 18.",
+    ]);
+
+    const isCheckedErrorMessages = result.current.renderErrorMessages(
+      "isChecked",
+      ["You must check this box."]
+    );
+
+    // エラーメッセージのスナップショットテスト
+    expect(nameErrorMessages).toMatchSnapshot();
+    expect(ageErrorMessages).toMatchSnapshot();
+    expect(isCheckedErrorMessages).toMatchSnapshot();
+  });
+
+  test("should render error messages with a custom component", () => {
+    const { result } = renderHook(() => useRBoxForm(initialValues, validate));
+
+    act(() => {
+      result.current.handleChange("name", "Jo"); // Invalid: Too short
+    });
+
+    const CustomErrorComponent = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => <div className="error">{children}</div>;
+
+    const nameErrorMessages = result.current.renderErrorMessages(
+      "name",
+      [
+        "Name must be at least 3 characters.",
+        "Name must only contain letters.",
+      ],
+      CustomErrorComponent
+    );
+
+    expect(nameErrorMessages).toMatchSnapshot();
+  });
+
+  test("should render nothing when there are no validation errors", () => {
+    const { result } = renderHook(() => useRBoxForm(initialValues, validate));
+
+    act(() => {
+      result.current.handleChange("name", "John"); // Valid: Correct name
+    });
+
+    const nameErrorMessages = result.current.renderErrorMessages("name", [
+      "Name must be at least 3 characters.",
+      "Name must only contain letters.",
+    ]);
+
+    expect(nameErrorMessages).toMatchSnapshot();
+  });
 });

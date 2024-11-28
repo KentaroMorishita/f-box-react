@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useRBoxForm > should render error messages correctly for invalid fields 1`] = `
+<React.Fragment>
+  <span>
+    Name must be at least 3 characters.
+  </span>
+</React.Fragment>
+`;
+
+exports[`useRBoxForm > should render error messages correctly for invalid fields 2`] = `
+<React.Fragment>
+  <span>
+    Age must be greater than 18.
+  </span>
+</React.Fragment>
+`;
+
+exports[`useRBoxForm > should render error messages correctly for invalid fields 3`] = `
+<React.Fragment>
+  <span>
+    You must check this box.
+  </span>
+</React.Fragment>
+`;
+
+exports[`useRBoxForm > should render error messages with a custom component 1`] = `
+<React.Fragment>
+  <CustomErrorComponent>
+    Name must be at least 3 characters.
+  </CustomErrorComponent>
+</React.Fragment>
+`;
+
+exports[`useRBoxForm > should render nothing when there are no validation errors 1`] = `<React.Fragment />`;

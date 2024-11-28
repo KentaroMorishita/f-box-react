@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useRBox } from "./useRBox";
 
 type FormValues = Record<string, unknown>;
@@ -20,6 +21,11 @@ type UseRBoxFormResult<T extends FormValues> = {
     onError?: () => void
   ) => (e: React.FormEvent) => void;
   shouldShowError: <K extends keyof T>(field: K) => (index: number) => boolean;
+  renderErrorMessages: <K extends keyof T>(
+    field: K,
+    messages: string[],
+    Component?: React.ElementType
+  ) => JSX.Element;
   validation: Validation<T>;
   edited: Edited<T>;
   formValid: boolean;
@@ -73,6 +79,21 @@ export function useRBoxForm<T extends FormValues>(
     (index: number): boolean =>
       edited[field] && !validation[field][index]();
 
+  const renderErrorMessages = <K extends keyof T>(
+    field: K,
+    messages: string[],
+    Component: React.ElementType = "span"
+  ): JSX.Element => (
+    <>
+      {messages.map(
+        (message, index) =>
+          shouldShowError(field)(index) && (
+            <Component key={index}>{message}</Component>
+          )
+      )}
+    </>
+  );
+
   const resetForm = () => {
     formBox.setValue(() => initialValues);
     editedBox.setValue(() => initialEdited(false));
@@ -92,6 +113,7 @@ export function useRBoxForm<T extends FormValues>(
     handleChange,
     handleValidatedSubmit,
     shouldShowError,
+    renderErrorMessages,
     validation,
     edited,
     formValid,
