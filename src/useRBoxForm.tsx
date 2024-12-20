@@ -25,7 +25,7 @@ type UseRBoxFormResult<T extends FormValues> = {
     field: K,
     messages: string[],
     Component?: React.ElementType
-  ) => JSX.Element;
+  ) => React.ReactElement;
   validation: Validation<T>;
   edited: Edited<T>;
   formValid: boolean;
@@ -83,7 +83,7 @@ export function useRBoxForm<T extends FormValues>(
     field: K,
     messages: string[],
     Component: React.ElementType = "span"
-  ): JSX.Element => (
+  ): React.ReactElement => (
     <>
       {messages.map(
         (message, index) =>
