@@ -233,4 +233,61 @@ describe("useRBoxForm", () => {
 
     expect(nameErrorMessages).toMatchSnapshot();
   });
+
+  test("should set isPending to true during async submission", async () => {
+    const mockSubmit: ReturnType<typeof vi.fn> = vi.fn(
+      async () => new Promise<void>((resolve) => setTimeout(resolve, 100))
+    );
+
+    const { result } = renderHook(() => useRBoxForm(initialValues, validate));
+
+    expect(result.current.isPending).toBe(false);
+
+    act(() => {
+      result.current.handleChange("name", "John"); // Valid name
+      result.current.handleChange("age", 25); // Valid age
+      result.current.handleChange("isChecked", true); // Valid checkbox
+    });
+
+    const eventMock = { preventDefault: vi.fn() } as unknown as React.FormEvent;
+
+    // 非同期処理の開始をトリガー
+    act(() => {
+      result.current.handleValidatedSubmit(mockSubmit)(eventMock);
+    });
+
+    // 非同期処理中にisPendingがtrueであることを確認
+    expect(result.current.isPending).toBe(true);
+
+    // 非同期処理が完了するのを待つ
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    });
+
+    // 非同期処理後にisPendingがfalseに戻ることを確認
+    expect(mockSubmit).toHaveBeenCalledWith({
+      name: "John",
+      age: 25,
+      isChecked: true,
+    });
+    expect(result.current.isPending).toBe(false);
+  });
+
+  test("should not call onSuccess and keep isPending false if form is invalid", () => {
+    const mockSubmit = vi.fn();
+    const { result } = renderHook(() => useRBoxForm(initialValues, validate));
+
+    act(() => {
+      result.current.handleChange("name", "Jo"); // Invalid name
+    });
+
+    const eventMock = { preventDefault: vi.fn() } as unknown as React.FormEvent;
+
+    act(() => {
+      result.current.handleValidatedSubmit(mockSubmit)(eventMock);
+    });
+
+    expect(mockSubmit).not.toHaveBeenCalled();
+    expect(result.current.isPending).toBe(false);
+  });
 });

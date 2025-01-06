@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useRBox } from "./useRBox";
+import { useRBoxTransaction } from "./useRBoxTransaction";
 
 type FormValues = Record<string, unknown>;
 
@@ -15,9 +16,10 @@ type Edited<T extends FormValues> = {
 
 type UseRBoxFormResult<T extends FormValues> = {
   form: T;
+  isPending: boolean;
   handleChange: <K extends keyof T>(field: K, value: T[K]) => void;
   handleValidatedSubmit: (
-    onSuccess: (form: T) => void,
+    onSuccess: (form: T) => Promise<void>,
     onError?: () => void
   ) => (e: React.FormEvent) => void;
   shouldShowError: <K extends keyof T>(field: K) => (index: number) => boolean;
@@ -35,7 +37,8 @@ type UseRBoxFormResult<T extends FormValues> = {
 
 export function useRBoxForm<T extends FormValues>(
   initialValues: T,
-  validate: (form: T) => Validation<T>
+  validate: (form: T) => Validation<T>,
+  ErrorComponent: React.ElementType = "span"
 ): UseRBoxFormResult<T> {
   const initialEdited = (value: boolean): Edited<T> =>
     Object.keys(initialValues).reduce(
@@ -54,6 +57,7 @@ export function useRBoxForm<T extends FormValues>(
         .every((rule) => rule())
     )
   );
+  const [isPending, startTransaction] = useRBoxTransaction();
 
   // helpers
   const handleChange = <K extends keyof T>(field: K, value: T[K]) => {
@@ -62,16 +66,16 @@ export function useRBoxForm<T extends FormValues>(
   };
 
   const handleValidatedSubmit =
-    (onSuccess: (form: T) => void, onError?: () => void) =>
+    (onSuccess: (form: T) => Promise<void>, onError?: () => void) =>
     (e: React.FormEvent) => {
       e.preventDefault();
       markAllEdited();
-
       if (!formValidBox.getValue()) {
         if (onError) onError();
         return;
       }
-      onSuccess(formBox.getValue());
+
+      startTransaction(async () => onSuccess(formBox.getValue()));
     };
 
   const shouldShowError =
@@ -82,7 +86,7 @@ export function useRBoxForm<T extends FormValues>(
   const renderErrorMessages = <K extends keyof T>(
     field: K,
     messages: string[],
-    Component: React.ElementType = "span"
+    Component: React.ElementType = ErrorComponent
   ): React.ReactElement => (
     <>
       {messages.map(
@@ -110,6 +114,7 @@ export function useRBoxForm<T extends FormValues>(
 
   return {
     form,
+    isPending,
     handleChange,
     handleValidatedSubmit,
     shouldShowError,
