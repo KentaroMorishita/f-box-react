@@ -1,115 +1,35 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`useRBoxForm > should render error messages correctly for invalid fields 1`] = `
-{
-  "$$typeof": Symbol(react.transitional.element),
-  "_owner": null,
-  "_store": {},
-  "key": null,
-  "props": {
-    "children": [
-      {
-        "$$typeof": Symbol(react.transitional.element),
-        "_owner": null,
-        "_store": {},
-        "key": "0",
-        "props": {
-          "children": "Name must be at least 3 characters.",
-        },
-        "type": "span",
-      },
-      false,
-    ],
-  },
-  "type": Symbol(react.fragment),
-}
+<React.Fragment>
+  <span>
+    Name must be at least 3 characters.
+  </span>
+</React.Fragment>
 `;
 
 exports[`useRBoxForm > should render error messages correctly for invalid fields 2`] = `
-{
-  "$$typeof": Symbol(react.transitional.element),
-  "_owner": null,
-  "_store": {},
-  "key": null,
-  "props": {
-    "children": [
-      {
-        "$$typeof": Symbol(react.transitional.element),
-        "_owner": null,
-        "_store": {},
-        "key": "0",
-        "props": {
-          "children": "Age must be greater than 18.",
-        },
-        "type": "span",
-      },
-    ],
-  },
-  "type": Symbol(react.fragment),
-}
+<React.Fragment>
+  <span>
+    Age must be greater than 18.
+  </span>
+</React.Fragment>
 `;
 
 exports[`useRBoxForm > should render error messages correctly for invalid fields 3`] = `
-{
-  "$$typeof": Symbol(react.transitional.element),
-  "_owner": null,
-  "_store": {},
-  "key": null,
-  "props": {
-    "children": [
-      {
-        "$$typeof": Symbol(react.transitional.element),
-        "_owner": null,
-        "_store": {},
-        "key": "0",
-        "props": {
-          "children": "You must check this box.",
-        },
-        "type": "span",
-      },
-    ],
-  },
-  "type": Symbol(react.fragment),
-}
+<React.Fragment>
+  <span>
+    You must check this box.
+  </span>
+</React.Fragment>
 `;
 
 exports[`useRBoxForm > should render error messages with a custom component 1`] = `
-{
-  "$$typeof": Symbol(react.transitional.element),
-  "_owner": null,
-  "_store": {},
-  "key": null,
-  "props": {
-    "children": [
-      {
-        "$$typeof": Symbol(react.transitional.element),
-        "_owner": null,
-        "_store": {},
-        "key": "0",
-        "props": {
-          "children": "Name must be at least 3 characters.",
-        },
-        "type": [Function],
-      },
-      false,
-    ],
-  },
-  "type": Symbol(react.fragment),
-}
+<React.Fragment>
+  <CustomErrorComponent>
+    Name must be at least 3 characters.
+  </CustomErrorComponent>
+</React.Fragment>
 `;
 
-exports[`useRBoxForm > should render nothing when there are no validation errors 1`] = `
-{
-  "$$typeof": Symbol(react.transitional.element),
-  "_owner": null,
-  "_store": {},
-  "key": null,
-  "props": {
-    "children": [
-      false,
-      false,
-    ],
-  },
-  "type": Symbol(react.fragment),
-}
-`;
+exports[`useRBoxForm > should render nothing when there are no validation errors 1`] = `<React.Fragment />`;
