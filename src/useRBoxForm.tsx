@@ -57,7 +57,9 @@ export function useRBoxForm<T extends FormValues>(
         .every((rule) => rule())
     )
   );
-  const [isPending, startTransaction] = useRBoxTransaction();
+
+  const [, isPendingBox] = useRBox(false);
+  const [isPending, startTransaction] = useRBoxTransaction(isPendingBox);
 
   // helpers
   const handleChange = <K extends keyof T>(field: K, value: T[K]) => {

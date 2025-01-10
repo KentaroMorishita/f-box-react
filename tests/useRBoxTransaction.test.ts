@@ -1,9 +1,10 @@
 import { renderHook, act } from "@testing-library/react";
+import { RBox } from "f-box-core";
 import { useRBoxTransaction } from "../src/useRBoxTransaction";
 
 describe("useRBoxTransaction", () => {
   test("should initialize with isPending set to false", () => {
-    const { result } = renderHook(() => useRBoxTransaction());
+    const { result } = renderHook(() => useRBoxTransaction(RBox.pack(false)));
 
     const [isPending] = result.current;
 
@@ -12,7 +13,7 @@ describe("useRBoxTransaction", () => {
   });
 
   test("should set isPending to true during async transaction", async () => {
-    const { result } = renderHook(() => useRBoxTransaction());
+    const { result } = renderHook(() => useRBoxTransaction(RBox.pack(false)));
 
     const [, startTransaction] = result.current;
 
@@ -42,7 +43,7 @@ describe("useRBoxTransaction", () => {
   });
 
   test("should handle multiple transactions sequentially", async () => {
-    const { result } = renderHook(() => useRBoxTransaction());
+    const { result } = renderHook(() => useRBoxTransaction(RBox.pack(false)));
 
     const [, startTransaction] = result.current;
 
