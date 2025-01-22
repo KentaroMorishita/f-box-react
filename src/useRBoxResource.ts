@@ -39,11 +39,10 @@ const hash = (value: unknown, length: number = 16) => {
           .map((b) => b.toString(16).padStart(2, "0"))
           .join("");
         return fullHash.slice(0, length);
-      } else {
-        const { createHash } = await import("crypto");
-        const fullHash = createHash("sha256").update(json).digest("hex");
-        return fullHash.slice(0, length);
       }
+      throw new Error(
+        "Hashing is not supported in this environment. Ensure this code is running in a browser."
+      );
     },
     (err) => {
       console.error(err);
