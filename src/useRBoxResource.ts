@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useRBox, set } from "./useRBox";
 import { Either, Task, RBox } from "f-box-core";
 
@@ -6,8 +7,9 @@ const { right, left } = Either;
 type Result<T> = Either<Error, Awaited<T>>;
 type CacheMap<T> = Map<string, Result<T>>;
 
-type RBoxResourceOptions<T> = {
+type RBoxResourceOptions<T, A> = {
   resultBox: RBox<Result<T>>;
+  paramsBox: RBox<A>;
   isLoadingBox: RBox<boolean>;
   cacheBox: RBox<CacheMap<T>>;
   isAutoRun: boolean;
@@ -57,10 +59,16 @@ export const castError = (err: unknown) =>
 export function useRBoxResource<T, A extends {}>(
   fetcher: (args: A) => Task<T>,
   initialParams: A = {} as A,
-  options: Partial<RBoxResourceOptions<T>> = {}
+  options: Partial<RBoxResourceOptions<T, A>> = {}
 ): [Result<T>, boolean, ResourceController<A>] {
+  const isAutoRun = options.isAutoRun ?? DEFAULT_IS_AUTO_RUN;
+  const maxCacheSize = options.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
+
   const [result, resultBox] = useRBox<Result<T>>(
     () => options.resultBox ?? RBox.pack<Result<T>>(left(DEFAULT_ERROR_OBJECT))
+  );
+  const [params, paramsBox] = useRBox<A>(
+    () => options.paramsBox ?? RBox.pack<A>(initialParams)
   );
   const [isLoading, isLoadingBox] = useRBox(
     () => options.isLoadingBox ?? RBox.pack(false)
@@ -69,13 +77,14 @@ export function useRBoxResource<T, A extends {}>(
     () => options.cacheBox ?? RBox.pack<CacheMap<T>>(new Map())
   );
 
-  const isAutoRun = options.isAutoRun ?? DEFAULT_IS_AUTO_RUN;
-  const maxCacheSize = options.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
   const setResult = set(resultBox);
+  const setParams = set(paramsBox);
+  const setIsLoading = set(isLoadingBox);
 
-  const [params, paramsBox] = useRBox(initialParams);
   const mutate = (args: Partial<A>) =>
-    paramsBox.setValue((prev) => ({ ...prev, ...args }));
+    setParams((prev) => ({ ...prev, ...args }));
+
+  const isSubscribed = useRef(false);
 
   const runTask = async (currentParams: A, ignoreCache = false) => {
     const cacheKey = await hash(currentParams).run();
@@ -98,8 +107,7 @@ export function useRBoxResource<T, A extends {}>(
       return;
     }
 
-    isLoadingBox.setValue(true);
-
+    setIsLoading(true);
     Task.tryCatch<Result<T>>(
       async () => right(await fetcher(currentParams).run()),
       (err) => left(castError(err))
@@ -107,18 +115,21 @@ export function useRBoxResource<T, A extends {}>(
       ["<$>"]((result) => {
         setResult(result);
         setCache(result);
+        setIsLoading(false);
       })
-      .run()
-      .finally(() => isLoadingBox.setValue(false));
+      .run();
   };
 
-  const run = () => paramsBox["<$>"](runTask);
+  const run = () => {
+    if (!isSubscribed.current) {
+      isSubscribed.current = true;
+      paramsBox["<$>"](runTask);
+    }
+  };
   const refetch = () => runTask(params, true);
   const clearCache = () => cacheBox.setValue(new Map());
 
-  if (isAutoRun) {
-    useRBox(run);
-  }
+  if (isAutoRun) run();
 
   return [result, isLoading, { params, run, mutate, refetch, clearCache }];
 }

@@ -286,7 +286,7 @@ describe("useRBoxResource", () => {
     });
 
     act(() => {
-      result.current[2].run(); // 再フェッチを実行
+      result.current[2].refetch(); // 再フェッチを実行
     });
 
     await act(async () => {
