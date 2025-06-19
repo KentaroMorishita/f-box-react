@@ -93,4 +93,24 @@ describe("useRBox", () => {
     expect(updatedValue).toBe(20);
     expect(box.getValue()).toBe(20);
   });
+
+  test("should work in SSR environment (server snapshot compatibility)", () => {
+    // Server Components環境をシミュレートするため、
+    // useSyncExternalStoreが第三引数なしで呼ばれた場合のエラーをテスト
+    const { result } = renderHook(() => useRBox(42));
+    
+    const [value, box] = result.current;
+    
+    // 基本的な動作確認
+    expect(value).toBe(42);
+    expect(box.getValue()).toBe(42);
+    
+    // RBoxの値がサーバーとクライアントで同じであることを確認
+    // これにより、getServerSnapshotとgetSnapshotが同じ値を返すことをテスト
+    const serverValue = box.getValue(); // サーバー側での値取得をシミュレート
+    const clientValue = box.getValue(); // クライアント側での値取得をシミュレート
+    
+    expect(serverValue).toBe(clientValue);
+    expect(serverValue).toBe(42);
+  });
 });

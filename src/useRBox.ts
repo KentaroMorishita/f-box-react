@@ -22,6 +22,7 @@ export function useRBox<T>(
       const key = box.subscribe(onStoreChange);
       return () => box.unsubscribe(key);
     },
+    () => box.getValue(),
     () => box.getValue()
   );
 
