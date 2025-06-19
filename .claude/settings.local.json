@@ -8,7 +8,9 @@
       "Bash(npm run build:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(npm run version:patch:*)"
+      "Bash(npm run version:patch:*)",
+      "Bash(git push:*)",
+      "Bash(npm run publish:public:*)"
     ],
     "deny": []
   }
