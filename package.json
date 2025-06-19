@@ -1,6 +1,6 @@
 {
   "name": "f-box-react",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "React hooks and utilities for working with f-box-core.",
   "type": "module",
   "files": [
