@@ -16,13 +16,17 @@
 - `npm run coverage` - カバレッジレポート付きでテスト実行
 
 ### 配布手順
-1. `npm test` - テスト実行
-2. `npm run build` - ビルド
-3. バージョン更新:
-   - `npm run version:patch` - パッチ版更新（バグフィックス: 0.2.1 → 0.2.2）
-   - `npm run version:minor` - マイナー版更新（新機能: 0.2.1 → 0.3.0）
-   - `npm run version:major` - メジャー版更新（破壊的変更: 0.2.1 → 1.0.0）
-4. `npm run publish:public` - npm公開
+1. `npm test run` - 全テスト実行
+2. `npm run lint` - 型チェック
+3. `npm run build` - ビルド
+4. `git add .` - 変更をステージング
+5. `git commit -m "修正内容の説明"` - コミット
+6. バージョン更新:
+   - `npm run version:patch` - パッチ版更新（バグフィックス: 0.2.8 → 0.2.9）
+   - `npm run version:minor` - マイナー版更新（新機能: 0.2.8 → 0.3.0）
+   - `npm run version:major` - メジャー版更新（破壊的変更: 0.2.8 → 1.0.0）
+7. `git push origin main --tags` - 変更とタグをプッシュ
+8. `npm run publish:public` - npm公開
 
 ## アーキテクチャ
 
