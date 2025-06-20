@@ -48,12 +48,29 @@ function App() {
 ```
 
 ### useRBox
-RBoxを使用したコアリアクティブ状態管理フック
+RBoxを使用したコアリアクティブ状態管理フック。他のすべてのフックの基盤となるフックです。
 
+#### 関数シグネチャ
+
+```tsx
+// パターン1: 既存のRBoxを渡す
+function useRBox<T>(source: RBox<T>): [T, RBox<T>];
+
+// パターン2: 値またはファクトリ関数から新しいRBoxを作成
+function useRBox<T>(
+  source: T | (() => T | RBox<T>),
+  deps?: React.DependencyList
+): [T, RBox<T>];
+```
+
+#### 使用パターン
+
+**パターン1: ローカル状態（最も一般的）**
 ```tsx
 import { useRBox, set } from "f-box-react";
 
 function Counter() {
+  // 初期値0で新しいRBoxを作成
   const [count, countBox] = useRBox(0);
   const setCount = set(countBox);
 
@@ -65,6 +82,99 @@ function Counter() {
   );
 }
 ```
+
+**パターン2: グローバル状態**
+```tsx
+import { RBox } from "f-box-core";
+import { useRBox, set } from "f-box-react";
+
+// コンポーネント外でグローバルRBoxを作成
+const globalCountBox = RBox.pack(0);
+
+function Counter() {
+  // 既存のRBoxを使用 - グローバルに状態を共有
+  const [count] = useRBox(globalCountBox);
+  const setCount = set(globalCountBox);
+
+  return (
+    <div>
+      <p>グローバルカウント: {count}</p>
+      <button onClick={() => setCount(count + 1)}>増加</button>
+    </div>
+  );
+}
+
+function ResetButton() {
+  // 同じグローバル状態を使用する別のコンポーネント
+  const setCount = set(globalCountBox);
+  return <button onClick={() => setCount(0)}>リセット</button>;
+}
+```
+
+**パターン3: ファクトリ関数**
+```tsx
+function TimestampComponent() {
+  // ファクトリ関数はマウント時のみ実行（空の依存配列）
+  const [timestamp] = useRBox(() => Date.now(), []);
+
+  return <div>作成日時: {new Date(timestamp).toLocaleString()}</div>;
+}
+```
+
+**パターン4: 依存関係付きファクトリ関数**
+```tsx
+function UserProfile({ userId }: { userId: number }) {
+  // userIdが変更されるとファクトリ関数が再実行
+  const [userBox] = useRBox(() => {
+    // userIdに基づいて初期状態を作成
+    return { id: userId, name: `ユーザー ${userId}`, loading: true };
+  }, [userId]);
+
+  // userIdが変更されるたびにuserBoxが再作成される
+  return <div>ユーザーID: {userBox.id}</div>;
+}
+```
+
+**パターン5: RBoxを返すファクトリ関数**
+```tsx
+function ComplexState({ config }: { config: Config }) {
+  // ファクトリは値または既存のRBoxを返すことができる
+  const [state, stateBox] = useRBox(() => {
+    if (config.useGlobalState) {
+      return getGlobalStateBox(); // 既存のRBoxを返す
+    } else {
+      return createInitialState(config); // プレーンな値を返す
+    }
+  }, [config]);
+
+  return <div>状態: {JSON.stringify(state)}</div>;
+}
+```
+
+**パターン6: 計算状態**
+```tsx
+function Calculator() {
+  const [a, aBox] = useRBox(5);
+  const [b, bBox] = useRBox(3);
+  
+  // 他のRBoxから派生した計算状態
+  const [sum] = useRBox(() => {
+    return RBox.pack(0)["<$>"](() => a + b);
+  }, [a, b]);
+
+  return <div>合計: {sum}</div>;
+}
+```
+
+#### 重要なポイント
+
+- **戻り値**: 常に `[現在値, rbox]` のタプルを返す
+- **リアクティブ性**: RBoxの値が変更されると自動的にコンポーネントが再レンダリング
+- **グローバル状態**: 既存のRBoxを渡してコンポーネント間で状態を共有
+- **ローカル状態**: 初期値を渡してコンポーネント固有の状態を作成
+- **ファクトリ関数**: 計算された初期値や条件付きRBox作成に使用
+- **依存関係**: 依存関係が変更されるとファクトリ関数が再実行
+- **SSR対応**: サーバーサイドレンダリング対応のため`useSyncExternalStore`を使用
 
 ### useRBoxForm
 バリデーション付きフォーム状態管理フック

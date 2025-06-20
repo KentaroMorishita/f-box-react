@@ -48,12 +48,29 @@ function App() {
 ```
 
 ### useRBox
-Core reactive state management hook using RBox
+Core reactive state management hook using RBox. This is the foundation hook that all other hooks are built upon.
 
+#### Function Signatures
+
+```tsx
+// Pattern 1: Pass an existing RBox
+function useRBox<T>(source: RBox<T>): [T, RBox<T>];
+
+// Pattern 2: Create a new RBox from a value or factory function
+function useRBox<T>(
+  source: T | (() => T | RBox<T>),
+  deps?: React.DependencyList
+): [T, RBox<T>];
+```
+
+#### Usage Patterns
+
+**Pattern 1: Local State (Most Common)**
 ```tsx
 import { useRBox, set } from "f-box-react";
 
 function Counter() {
+  // Creates a new RBox with initial value 0
   const [count, countBox] = useRBox(0);
   const setCount = set(countBox);
 
@@ -65,6 +82,99 @@ function Counter() {
   );
 }
 ```
+
+**Pattern 2: Global State**
+```tsx
+import { RBox } from "f-box-core";
+import { useRBox, set } from "f-box-react";
+
+// Create global RBox outside component
+const globalCountBox = RBox.pack(0);
+
+function Counter() {
+  // Use existing RBox - shares state globally
+  const [count] = useRBox(globalCountBox);
+  const setCount = set(globalCountBox);
+
+  return (
+    <div>
+      <p>Global Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  );
+}
+
+function ResetButton() {
+  // Another component using the same global state
+  const setCount = set(globalCountBox);
+  return <button onClick={() => setCount(0)}>Reset</button>;
+}
+```
+
+**Pattern 3: Factory Function**
+```tsx
+function TimestampComponent() {
+  // Factory function runs only on mount (empty deps array)
+  const [timestamp] = useRBox(() => Date.now(), []);
+
+  return <div>Created at: {new Date(timestamp).toLocaleString()}</div>;
+}
+```
+
+**Pattern 4: Factory Function with Dependencies**
+```tsx
+function UserProfile({ userId }: { userId: number }) {
+  // Factory function re-runs when userId changes
+  const [userBox] = useRBox(() => {
+    // Create initial state based on userId
+    return { id: userId, name: `User ${userId}`, loading: true };
+  }, [userId]);
+
+  // userBox is recreated whenever userId changes
+  return <div>User ID: {userBox.id}</div>;
+}
+```
+
+**Pattern 5: Factory Function Returning RBox**
+```tsx
+function ComplexState({ config }: { config: Config }) {
+  // Factory can return either a value or an existing RBox
+  const [state, stateBox] = useRBox(() => {
+    if (config.useGlobalState) {
+      return getGlobalStateBox(); // Returns existing RBox
+    } else {
+      return createInitialState(config); // Returns plain value
+    }
+  }, [config]);
+
+  return <div>State: {JSON.stringify(state)}</div>;
+}
+```
+
+**Pattern 6: Computed State**
+```tsx
+function Calculator() {
+  const [a, aBox] = useRBox(5);
+  const [b, bBox] = useRBox(3);
+  
+  // Derive computed state from other RBoxes
+  const [sum] = useRBox(() => {
+    return RBox.pack(0)["<$>"](() => a + b);
+  }, [a, b]);
+
+  return <div>Sum: {sum}</div>;
+}
+```
+
+#### Key Points
+
+- **Return Value**: Always returns `[currentValue, rbox]` tuple
+- **Reactivity**: Components automatically re-render when RBox value changes
+- **Global State**: Pass existing RBox to share state across components
+- **Local State**: Pass initial value to create component-local state
+- **Factory Functions**: Use for computed initial values or conditional RBox creation
+- **Dependencies**: Factory functions re-run when dependencies change
+- **SSR Safe**: Uses `useSyncExternalStore` for server-side rendering compatibility
 
 ### useRBoxForm
 Form state management hook with validation
